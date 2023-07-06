@@ -1,29 +1,75 @@
 const Contacts = require('../models/schema')
+const {HttpError} = require('../helpers/index')
 
-const listContacts = async () => {
-  const allContacts = await Contacts.find();
-  return allContacts;
+const listContacts = async (req,res,next) => {
+  try{
+    const allContacts = await Contacts.find();
+    res.json({data: allContacts})
+  }catch(error){
+    const { status = 500, message = "Server errror" } = error;
+    res.status(status).json({ message });
+  }
 };
 
-const getContactById = async (contactId) => {
-  const result = await Contacts.findById(contactId)
-  return result;
+const getContactById = async (req,res,next) => {
+  try{
+    const byId = await Contacts.findById(req.params.contactId)
+    if (!byId) {
+      const error = HttpError(404, "Not found");
+      throw error;
+    }
+    res.json({ data: byId });
+  }catch (error) {
+    const { status = 500, message = "Server errror" } = error;
+    res.status(status).json({ message });
+  }
 };
 
-const removeContact = async (contactId) => {
-  const removedContact = await Contacts.findByIdAndDelete(contactId)
-  return removedContact || null;
+const addContact = async (req,res,next) => {
+  try{
+    const newContact = await Contacts.create(req.body)
+    res.status("201").json({ message: "add contact", data: newContact });
+  }catch (error) {
+    const { status = 500, message = "Server errror" } = error;
+    res.status(status).json({ message });
+  }
 };
 
-const addContact = async (body) => {
-  const newContact = await Contacts.create(body)
-  return newContact;
+const removeContact = async (req,res,nexr) => {
+  try{
+    const removedContact = await Contacts.findByIdAndDelete(req.params.contactId)
+    if(!removedContact){
+      throw HttpError(404, "Not found");;
+    }
+    res.json({message: 'contact deleted'})
+  }catch (error) {
+    const { status = 500, message = "Server errror" } = error;
+    res.status(status).json({ message });
+  }
 };
 
-const updateContact = async (contactId, body) => {
-  const updatedContact = await Contacts.findByIdAndUpdate(contactId, body, {new: true})
-  return updatedContact || null;
+const updateContact = async (req,res,next) => {
+  try{
+    const updatedContact = await Contacts.findByIdAndUpdate(req.params.contactId, req.body, {new: true})
+    res.json({data: updatedContact})
+  }catch (error) {
+    const { status = 500, message = "Server errror" } = error;
+    res.status(status).json({ message });
+  }
 };
+
+const changeFavorite = async (req,res,next) =>{
+  try{
+    if(!req.body.favorite){
+      throw HttpError(400, 'missing field favorite')
+    }
+    const result = await Contacts.findOneAndUpdate({id: req.body.id}, req.body, {new:true})
+    res.json(result)
+  }catch (error) {
+    const { status = 500, message = "Server errror" } = error;
+    res.status(status).json({ message });
+  }
+}
 
 module.exports = {
   listContacts,
@@ -31,4 +77,5 @@ module.exports = {
   removeContact,
   addContact,
   updateContact,
+  changeFavorite
 };
