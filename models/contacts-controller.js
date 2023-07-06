@@ -69,6 +69,7 @@ const addContact = async (req, res, next) => {
     await fs.writeFile(contactPath, JSON.stringify(allContacts, null, 2));
     res.status("201").json(newContact);
   } catch (error) {
+    console.log(error);
     const { status = 500, message = "Server errror" } = error;
     res.status(status).json({ message });
   }
