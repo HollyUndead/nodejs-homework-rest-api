@@ -60,10 +60,24 @@ const updateContact = async (req,res,next) => {
   }
 };
 
+const changeFavorite = async (req,res,next) =>{
+  try{
+    if(!req.body.favorite){
+      throw HttpError(400, 'missing field favorite')
+    }
+    const result = await Contacts.findOneAndUpdate({id: req.body.id}, req.body, {new:true})
+    res.json(result)
+  }catch (error) {
+    const { status = 500, message = "Server errror" } = error;
+    res.status(status).json({ message });
+  }
+}
+
 module.exports = {
   listContacts,
   getContactById,
   removeContact,
   addContact,
   updateContact,
+  changeFavorite
 };
