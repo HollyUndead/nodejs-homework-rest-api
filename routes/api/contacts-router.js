@@ -26,7 +26,7 @@ router.delete("/:contactId", isValidId, removeContact)
 
 router.put("/:contactId", isValidId, isBodyEmpty, validateBody(contactSchema), updateContact)
 
-router.patch('/:contactId/favorite', isValidId, isBodyEmpty, validateBody(contactSchema), changeFavorite)
+router.patch('/:contactId/favorite', changeFavorite)
 
 
 

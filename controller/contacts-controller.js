@@ -4,7 +4,7 @@ const {HttpError} = require('../helpers/index')
 const listContacts = async (req,res,next) => {
   try{
     const allContacts = await Contacts.find();
-    res.json({data: allContacts})
+    res.json(allContacts)
   }catch(error){
     const { status = 500, message = "Server errror" } = error;
     res.status(status).json({ message });
@@ -18,7 +18,7 @@ const getContactById = async (req,res,next) => {
       const error = HttpError(404, "Not found");
       throw error;
     }
-    res.json({ data: byId });
+    res.json(byId);
   }catch (error) {
     const { status = 500, message = "Server errror" } = error;
     res.status(status).json({ message });
@@ -28,7 +28,7 @@ const getContactById = async (req,res,next) => {
 const addContact = async (req,res,next) => {
   try{
     const newContact = await Contacts.create(req.body)
-    res.status("201").json({ message: "add contact", data: newContact });
+    res.status("201").json(newContact);
   }catch (error) {
     const { status = 500, message = "Server errror" } = error;
     res.status(status).json({ message });
@@ -51,7 +51,7 @@ const removeContact = async (req,res,nexr) => {
 const updateContact = async (req,res,next) => {
   try{
     const updatedContact = await Contacts.findByIdAndUpdate(req.params.contactId, req.body, {new: true})
-    res.json({data: updatedContact})
+    res.json(updatedContact)
   }catch (error) {
     const { status = 500, message = "Server errror" } = error;
     res.status(status).json({ message });
@@ -60,10 +60,11 @@ const updateContact = async (req,res,next) => {
 
 const changeFavorite = async (req,res,next) =>{
   try{
-    if(!req.body.favorite){
+    if(req.body.favorite === undefined){
       throw HttpError(400, 'missing field favorite')
     }
-    const result = await Contacts.findOneAndUpdate({id: req.body.id}, req.body, {new:true})
+    console.log(req.params);
+    const result = await Contacts.findByIdAndUpdate(req.params.contactId, req.body, {new:true})
     res.json(result)
   }catch (error) {
     const { status = 500, message = "Server errror" } = error;
